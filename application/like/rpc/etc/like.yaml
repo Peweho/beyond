@@ -1,0 +1,11 @@
+Name: like.rpc
+ListenOn: 0.0.0.0:8080
+Mode: test
+Etcd:
+  Hosts:
+  - 192.168.92.202:2379
+  Key: like.rpc
+KqPusherConf:
+  Brokers:
+    - 192.168.92.202:9092
+  Topic: topic-beyond-like

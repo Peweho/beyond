@@ -1,0 +1,20 @@
+Name: applet-api
+Host: 0.0.0.0
+Port: 9090
+Auth:
+  AccessSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  AccessExpire: 604800
+  RefreshSecret: xxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+  RefreshExpire: 2592000
+  RefreshAfter: 604800
+Oss:
+  Endpoint: oss-cn-beijing.aliyuncs.com
+  AccessKeyId: LTAI5tPmyKZXwxakhMzzGtpR
+  AccessKeySecret: aD8FSBTl3cEu8nT3WiaFNPdhjOqf9u
+  BucketName: pwh-web01
+ArticleRPC:
+  Etcd:
+    Hosts:
+      - 192.168.92.202:2379
+    Key: article.rpc
+  NonBlock: true

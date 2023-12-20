@@ -1,0 +1,15 @@
+Name: article.rpc
+ListenOn: 0.0.0.0:8686
+Etcd:
+  Hosts:
+  - 192.168.92.202:2379
+  Key: article.rpc
+DataSource: root:123456@tcp(192.168.92.202:3306)/beyond_article?parseTime=true&loc=Local
+CacheRedis:
+  - Host: 192.168.92.202:6379
+    Pass:
+    Type: node
+BizRedis:
+  Host: 192.168.92.202:6379
+  Pass:
+  Type: node
