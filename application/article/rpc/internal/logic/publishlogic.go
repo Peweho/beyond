@@ -68,7 +68,7 @@ func (l *PublishLogic) Publish(in *pb.PublishRequest) (*pb.PublishResponse, erro
 		likeNumKey     = articlesKey(in.UserId, types.SortLikeCount)
 	)
 
-	// 4、将新的文章写缓存列表
+	//4、将新的文章写缓存列表
 	val, _ := l.svcCtx.BizRedis.ExistsCtx(l.ctx, publishTimeKey)
 	if val {
 		_, err := l.svcCtx.BizRedis.ZaddCtx(l.ctx, publishTimeKey, time.Now().Unix(), articleIdStr)

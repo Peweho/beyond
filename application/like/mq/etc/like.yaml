@@ -2,7 +2,7 @@ Name: mq
 KqConsumerConf:
   Name: like-kq-consumer
   Brokers:
-    - 192.168.92.202:9092
+    - 192.168.92.201:9092
   Group: group-beyond-like
   Topic: topic-beyond-like
   Offset: last

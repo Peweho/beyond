@@ -10,10 +10,10 @@ Auth:
 UserRPC:
   Etcd:
     Hosts:
-      - 192.168.92.202:2379
+      - 192.168.92.201:2379
     Key: user.rpc
   NonBlock: true
 BizRedis:
-  Host: 192.168.92.202:6379
+  Host: 192.168.92.201:6379
   Pass: 
   Type: node

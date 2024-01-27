@@ -2,14 +2,14 @@ Name: user.rpc
 ListenOn: 0.0.0.0:8080
 Etcd:
   Hosts:
-  - 192.168.92.202:2379
+  - 192.168.92.201:2379
   Key: user.rpc
-DataSource: root:123456@tcp(192.168.92.202:3306)/beyond_user?parseTime=true
+DataSource: root:123456@tcp(192.168.92.201:3306)/beyond_user?parseTime=true
 CacheRedis:
-  - Host: 192.168.92.202:6379
+  - Host: 192.168.92.201:6379
     Pass:
     Type: node
 BizRedis:
-  Host: 192.168.92.202:6379
+  Host: 192.168.92.201:6379
   Pass:
   Type: node

@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 	"time"
 
@@ -40,6 +41,7 @@ func (l *ArticleLogic) Consume(_, val string) error {
 }
 
 func (l *ArticleLogic) articleOperate(ctx context.Context, msg *types.CanalArticleMsg) error {
+	log.Println("msg.Data:", msg.Data)
 	if len(msg.Data) == 0 {
 		return nil
 	}
@@ -52,7 +54,7 @@ func (l *ArticleLogic) articleOperate(ctx context.Context, msg *types.CanalArtic
 		likeNumKey := articlesKey(d.AuthorId, 1)
 
 		switch status {
-		case types.ArticleStatusVisible:
+		case types.ArticleStatusPending:
 			b, _ := l.svcCtx.BizRedis.ExistsCtx(ctx, publishTimeKey)
 			if b {
 				_, err = l.svcCtx.BizRedis.ZaddCtx(ctx, publishTimeKey, t.Unix(), d.ID)
@@ -60,6 +62,7 @@ func (l *ArticleLogic) articleOperate(ctx context.Context, msg *types.CanalArtic
 					l.Logger.Errorf("ZaddCtx key: %s req: %v error: %v", publishTimeKey, d, err)
 				}
 			}
+
 			b, _ = l.svcCtx.BizRedis.ExistsCtx(ctx, likeNumKey)
 			if b {
 				_, err = l.svcCtx.BizRedis.ZaddCtx(ctx, likeNumKey, likNum, d.ID)
@@ -72,6 +75,7 @@ func (l *ArticleLogic) articleOperate(ctx context.Context, msg *types.CanalArtic
 			if err != nil {
 				logx.Errorf("ZremCtx key: %s req: %v error: %v", publishTimeKey, d, err)
 			}
+
 			_, err = l.svcCtx.BizRedis.ZremCtx(ctx, likeNumKey, d.ID)
 			if err != nil {
 				logx.Errorf("ZremCtx key: %s req: %v error: %v", likeNumKey, d, err)

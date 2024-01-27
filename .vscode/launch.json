@@ -11,8 +11,8 @@
             "mode": "auto",
             //"program": "./application/user/rpc/user.go"
             //"program": "./application/applet/applet.go"
-            "program": "./application/article/api/article.go"
-            //"program": "./application/article/rpc/article.go"
+            //"program": "./application/article/api/article.go"
+            "program": "./application/article/rpc/article.go"
         }
     ]
 }

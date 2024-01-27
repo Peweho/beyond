@@ -15,6 +15,6 @@ Oss:
 ArticleRPC:
   Etcd:
     Hosts:
-      - 192.168.92.202:2379
+      - 192.168.92.201:2379
     Key: article.rpc
   NonBlock: true

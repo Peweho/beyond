@@ -3,8 +3,10 @@ package logic
 import (
 	"context"
 	"fmt"
+	"log"
 	"strconv"
 	"sync"
+	"time"
 
 	"myBeyond/application/article/rpc/internal/code"
 	"myBeyond/application/article/rpc/internal/model"
@@ -37,7 +39,6 @@ func NewArticlesLogic(ctx context.Context, svcCtx *svc.ServiceContext) *Articles
 
 // 请求文章列表
 func (l *ArticlesLogic) Articles(in *pb.ArticlesRequest) (*pb.ArticlesResponse, error) {
-	fmt.Println("++++++++++++++++")
 	//1、判断请求参数是否正确并赋上默认值
 	if in.SortType != types.SortPublishTime && in.SortType != types.SortLikeCount {
 		return nil, code.SortTypeInvalid
@@ -52,7 +53,7 @@ func (l *ArticlesLogic) Articles(in *pb.ArticlesRequest) (*pb.ArticlesResponse, 
 	var (
 		err       error
 		isEnd     bool
-		cursor    int64
+		cursor    int64 = in.Cursor
 		sortField string
 		curPage   []*pb.ArticleItem
 		articles  []*model.Article
@@ -60,6 +61,7 @@ func (l *ArticlesLogic) Articles(in *pb.ArticlesRequest) (*pb.ArticlesResponse, 
 	//2、查找缓存
 	//3.1、判断缓存是否为空并添加结束符
 	cacheIds, err := l.cacheArticles(l.ctx, in.UserId, in.Cursor, in.PageSize, in.SortType)
+
 	if err != nil {
 		return nil, err
 	}
@@ -67,10 +69,12 @@ func (l *ArticlesLogic) Articles(in *pb.ArticlesRequest) (*pb.ArticlesResponse, 
 		//3.2、不为空
 		//3.3、转换对象
 		articles, err = l.articleByIds(l.ctx, cacheIds)
+
 		if err != nil {
 			return nil, err
 		}
 		curPage = l.ArticleItemByArticle(l.ctx, articles)
+
 		//3.4、构造响应参数
 		if cacheIds[len(cacheIds)-1] == -1 {
 			isEnd = true
@@ -78,6 +82,7 @@ func (l *ArticlesLogic) Articles(in *pb.ArticlesRequest) (*pb.ArticlesResponse, 
 			isEnd = false
 			cursor += int64(len(cacheIds))
 		}
+
 		return &pb.ArticlesResponse{
 			Articles:  curPage,
 			IsEnd:     isEnd,
@@ -104,7 +109,7 @@ func (l *ArticlesLogic) Articles(in *pb.ArticlesRequest) (*pb.ArticlesResponse, 
 		return &pb.ArticlesResponse{}, nil
 	}
 	if len(articles) < types.DefaultLimit {
-		articles = append(articles, &model.Article{Id: -1})
+		articles = append(articles, &model.Article{Id: -1, LikeNum: 0, PublishTime: time.Date(1970, time.January, 1, 0, 0, 0, 0, time.UTC)})
 	}
 
 	//4.2、写缓存
@@ -120,14 +125,22 @@ func (l *ArticlesLogic) Articles(in *pb.ArticlesRequest) (*pb.ArticlesResponse, 
 	}()
 
 	//4.3、转换对象
-	if len(articles) > types.DefaultPageSize {
-		curPage = l.ArticleItemByArticle(l.ctx, articles[:types.DefaultPageSize])
+	articlesLen := len(articles)
+	if articlesLen > types.DefaultPageSize {
+		articles = articles[:types.DefaultPageSize]
 	} else {
-		curPage = l.ArticleItemByArticle(l.ctx, articles)
-		isEnd = false
+		//判断返回的对象是否含有结束位
+		if articles[articlesLen-1].Id == -1 {
+			isEnd = true
+			articles = articles[:articlesLen-1]
+		} else {
+			isEnd = false
+		}
 	}
 
-	cursor = in.Cursor + int64(len(curPage))
+	curPage = l.ArticleItemByArticle(l.ctx, articles)
+
+	cursor += int64(len(curPage))
 	fmt.Printf("%d + %d = %d\n", in.Cursor, int64(len(curPage)), cursor)
 	fmt.Println(curPage)
 	//4.4、构造响应参数
@@ -167,9 +180,18 @@ func (l *ArticlesLogic) cacheArticles(ctx context.Context, uid, cursor, ps int64
 		}
 	}
 
+	var scoreLimit int64
+	if sortType == types.SortPublishTime {
+		scoreLimit = time.Now().Unix()
+	} else {
+		scoreLimit = types.DefaultSortLikeCursor
+	}
+
 	// 4、查询缓存
-	fmt.Println("4、查询缓存")
-	pairs, err := l.svcCtx.BizRedis.ZrevrangebyscoreWithScoresAndLimitCtx(ctx, key, 0, types.DefaultSortLikeCursor, int(cursor)/int(ps)+1, int(ps))
+	fmt.Println("4、查询缓存", key, 0, scoreLimit, int(cursor)/int(ps)+1, int(ps))
+	pairs, err := l.svcCtx.BizRedis.ZrevrangebyscoreWithScoresAndLimitCtx(ctx, key, 0, scoreLimit, int(cursor)/int(ps), int(ps))
+	log.Println(pairs)
+
 	if err != nil {
 		logx.Errorf("ZrevrangebyscoreWithScoresAndLimit key: %s error: %v", key, err)
 		return nil, err
@@ -199,17 +221,24 @@ func (l *ArticlesLogic) articleByIds(ctx context.Context, articleIds []int64) ([
 		}
 	}, func(item int64, writer mr.Writer[model.Article], cancel func(error)) {
 		article, err := l.svcCtx.ArticleModel.FindOne(ctx, item)
+
+		log.Println("article1:", article)
+
 		if err != nil {
 			cancel(err)
 		}
 		writer.Write(*article)
 	}, func(pipe <-chan model.Article, writer mr.Writer[[]*model.Article], cancel func(error)) {
 		articles := make([]*model.Article, 0)
+
 		for article := range pipe {
-			articles = append(articles, &article)
+			log.Println("article2:", article)
+			newArticle := article
+			articles = append(articles, &newArticle)
 		}
 		writer.Write(articles)
 	})
+
 	if err != nil {
 		return nil, err
 	}
