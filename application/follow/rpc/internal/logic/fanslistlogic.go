@@ -23,8 +23,8 @@ func NewFansListLogic(ctx context.Context, svcCtx *svc.ServiceContext) *FansList
 	}
 }
 
-func (l *FansListLogic) FansList(in *pb.FollowListRequest) (*pb.FollowListResponse, error) {
+func (l *FansListLogic) FansList(in *pb.FansListRequest) (*pb.FansListResponse, error) {
 	// todo: add your logic here and delete this line
 
-	return &pb.FollowListResponse{}, nil
+	return &pb.FansListResponse{}, nil
 }

@@ -37,7 +37,7 @@ func (s *FollowServer) FollowList(ctx context.Context, in *pb.FollowListRequest)
 	return l.FollowList(in)
 }
 
-func (s *FollowServer) FansList(ctx context.Context, in *pb.FollowListRequest) (*pb.FollowListResponse, error) {
+func (s *FollowServer) FansList(ctx context.Context, in *pb.FansListRequest) (*pb.FansListResponse, error) {
 	l := logic.NewFansListLogic(ctx, s.svcCtx)
 	return l.FansList(in)
 }

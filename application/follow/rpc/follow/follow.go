@@ -28,7 +28,7 @@ type (
 		Follow(ctx context.Context, in *FollowRequest, opts ...grpc.CallOption) (*FollowResponse, error)
 		UnFollow(ctx context.Context, in *UnFollowRequest, opts ...grpc.CallOption) (*UnFollowResponse, error)
 		FollowList(ctx context.Context, in *FollowListRequest, opts ...grpc.CallOption) (*FollowListResponse, error)
-		FansList(ctx context.Context, in *FollowListRequest, opts ...grpc.CallOption) (*FollowListResponse, error)
+		FansList(ctx context.Context, in *FansListRequest, opts ...grpc.CallOption) (*FansListResponse, error)
 	}
 
 	defaultFollow struct {
@@ -57,7 +57,7 @@ func (m *defaultFollow) FollowList(ctx context.Context, in *FollowListRequest, o
 	return client.FollowList(ctx, in, opts...)
 }
 
-func (m *defaultFollow) FansList(ctx context.Context, in *FollowListRequest, opts ...grpc.CallOption) (*FollowListResponse, error) {
+func (m *defaultFollow) FansList(ctx context.Context, in *FansListRequest, opts ...grpc.CallOption) (*FansListResponse, error) {
 	client := pb.NewFollowClient(m.cli.Conn())
 	return client.FansList(ctx, in, opts...)
 }

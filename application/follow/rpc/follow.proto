@@ -7,7 +7,7 @@ service Follow{
     rpc Follow (FollowRequest) returns (FollowResponse);
     rpc UnFollow (UnFollowRequest) returns (UnFollowResponse);
     rpc FollowList (FollowListRequest) returns (FollowListResponse);
-    rpc FansList (FollowListRequest) returns (FollowListResponse);
+    rpc FansList (FansListRequest) returns (FansListResponse);
 }
 
 message FollowRequest {
