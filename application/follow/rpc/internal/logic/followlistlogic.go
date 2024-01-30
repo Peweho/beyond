@@ -161,32 +161,19 @@ func (l *FollowListLogic) cacheIds(ctx context.Context, uid int64, cursor int64,
 
 func (l *FollowListLogic) itemByIds(ctx context.Context, uid int64, ids []int64) ([]*pb.FollowItem, error) {
 	res := make([]*pb.FollowItem, 0, len(ids))
-	followUser, err := l.svcCtx.FollowModel.FindByFollowedUserIds(l.ctx, uid, ids)
-	if err != nil {
-		l.Logger.Errorf("[FollowList] FollowModel.FindByFollowedUserIds error: %v", err)
-		return nil, err
-	}
-
 	followCount, err := l.svcCtx.FollowCountModel.FindByUserIds(l.ctx, ids)
 	if err != nil {
 		l.Logger.Errorf("[FollowList] FollowCountModel.FindByUserIds error: %v", err)
 		return nil, err
 	}
 
-	var userIdCount map[int64]int64
 	for _, val := range followCount {
-		userIdCount[val.UserID] = int64(val.FansCount)
-	}
-
-	for _, val := range followUser {
 		res = append(res, &pb.FollowItem{
 			Id:             val.ID,
-			FollowedUserId: val.FollowedUserID,
+			FollowedUserId: val.UserID,
+			CreateTime:     val.CreateTime.Unix(),
+			FansCount:      int64(val.FansCount),
 		})
-	}
-
-	for _, val := range res {
-		val.FansCount = userIdCount[val.FollowedUserId]
 	}
 
 	return res, nil

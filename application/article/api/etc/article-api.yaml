@@ -9,8 +9,8 @@ Auth:
   RefreshAfter: 604800
 Oss:
   Endpoint: oss-cn-beijing.aliyuncs.com
-  AccessKeyId: LTAI5tPmyKZXwxakhMzzGtpR
-  AccessKeySecret: aD8FSBTl3cEu8nT3WiaFNPdhjOqf9u
+  AccessKeyId: 
+  AccessKeySecret: 
   BucketName: pwh-web01
 ArticleRPC:
   Etcd:
